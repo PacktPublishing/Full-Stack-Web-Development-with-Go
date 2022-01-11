@@ -1,0 +1,7 @@
+.DS_Store
+config.json
+.env*
+.terraform*
+*.tfstate*
+.vscode
+.idea
