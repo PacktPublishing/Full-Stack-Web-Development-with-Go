@@ -1,14 +1,29 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"github.com/gorilla/mux"
 	"html/template"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
+)
+
+var (
+	Version string = strings.TrimSpace(version)
+	//go:embed version/version.txt
+	version string
+
+	//go:embed static/*
+	staticEmbed embed.FS
+
+	//go:embed tmpl/*.html
+	tmplEmbed embed.FS
 )
 
 type staticHandler struct {
@@ -28,7 +43,25 @@ func (h staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	_, err = os.Stat(path)
 
-	http.FileServer(http.Dir(h.staticPath)).ServeHTTP(w, r)
+	log.Print("using embed mode")
+	fsys, err := fs.Sub(staticEmbed, "static")
+	if err != nil {
+		panic(err)
+	}
+
+	http.FileServer(http.FS(fsys)).ServeHTTP(w, r)
+}
+
+//renderFiles renders file and push data (d) into the templates to be rendered
+func renderFiles(tmpl string, w http.ResponseWriter, d interface{}) {
+	t, err := template.ParseFS(tmplEmbed, fmt.Sprintf("tmpl/%s.html", tmpl))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := t.Execute(w, d); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func postHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,16 +74,7 @@ func postHandler(w http.ResponseWriter, r *http.Request) {
 		result = result + "unsuccessful"
 	}
 
-	t, err := template.ParseFiles("static/tmpl/msg.html")
-
-	if err != nil {
-		fmt.Fprintf(w, "error processing")
-		return
-	}
-
-	tpl := template.Must(t, err)
-
-	tpl.Execute(w, result)
+	renderFiles("msg", w, result)
 }
 
 func validateUser(username string, password string) bool {
@@ -58,6 +82,8 @@ func validateUser(username string, password string) bool {
 }
 
 func main() {
+	log.Println("Server Version :", Version)
+
 	router := mux.NewRouter()
 
 	router.HandleFunc("/login", postHandler).Methods("POST")
