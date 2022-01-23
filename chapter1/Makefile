@@ -24,8 +24,7 @@ postgresup:
 	docker run --name test-postgres -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 -d postgres
 
 postgresdown:
-	docker stop test-postgres
-	docker rm test-postgres
+	docker stop test-postgres  || true && 	docker rm test-postgres || true
 
 psql:
 	docker run -v $(PWD):/usr/share/chapter1 -it --rm jbergknoff/postgresql-client -p 5432:5432 $(PSQLURL)
