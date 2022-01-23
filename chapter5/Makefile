@@ -27,11 +27,12 @@ postgresdown:
 	docker stop test-postgres  || true && 	docker rm test-postgres || true
 
 psql:
-	docker run -v $(PWD):/usr/share/chapter1 -it --rm jbergknoff/postgresql-client -p 5432:5432 $(PSQLURL)
+	docker run -v $(PWD):/usr/share/chapter5 -it --rm jbergknoff/postgresql-client -p 5432:5432 $(PSQLURL)
 
 # task to create database without typing it manually
 createdb:
-	docker run -v $(PWD):/usr/share/chapter1 -it --rm jbergknoff/postgresql-client -p 5432:5432 $(PSQLURL) -c "\i /usr/share/chapter1/db/schema.sql"
+	echo $(PWD)
+	docker run -v $(PWD):/usr/share/chapter5 -it --rm jbergknoff/postgresql-client -p 5432:5432 $(PSQLURL) -c "\i /usr/share/chapter5/db/schema.sql"
 
 teardown_recreate: postgresdown postgresup
 	sleep 5
