@@ -7,15 +7,16 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
-	_ "github.com/lib/pq"
 	"html/template"
 	"io/fs"
 	"log"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
+	_ "github.com/lib/pq"
 
 	"time"
 )
@@ -102,7 +103,7 @@ func authenticationHandler(w http.ResponseWriter, r *http.Request) {
 //that the session has gone through authentication process
 func hasBeenAuthenticated(w http.ResponseWriter, r *http.Request) bool {
 	session, _ := store.Get(r, "session_token")
-	a, _ := session.Values["authenticated"]
+	a := session.Values["authenticated"]
 
 	if a == nil {
 		return false
@@ -133,7 +134,7 @@ func validateUser(username string, password string) bool {
 		return false
 	}
 
-	return pkg.CheckPasswordHash(password, u.PassWordHash)
+	return pkg.CheckPasswordHash(password, u.PasswordHash)
 }
 
 func main() {
@@ -175,11 +176,11 @@ func main() {
 
 func initDatabase() {
 	dbURI := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
-		GetAsString("DB_USER", "postgres"),
+		GetAsString("DB_USER", "user"),
 		GetAsString("DB_PASSWORD", "mysecretpassword"),
 		GetAsString("DB_HOST", "localhost"),
 		GetAsInt("DB_PORT", 5432),
-		GetAsString("DB_NAME", "postgres"),
+		GetAsString("DB_NAME", "fullstackgo"),
 	)
 
 	// Open the database
@@ -210,18 +211,19 @@ func createUserDb(ctx context.Context) {
 	u, _ := dbQuery.GetUserByName(ctx, "user@user")
 
 	if u.UserName == "user@user" {
-		log.Println("user@user exist...")
+		log.Println("user@user exists...")
 		return
 	}
 	log.Println("Creating user@user...")
 	hashPwd, _ := pkg.HashPassword("password")
 	_, err := dbQuery.CreateUsers(ctx, chapter5.CreateUsersParams{
 		UserName:     "user@user",
-		PassWordHash: hashPwd,
+		PasswordHash: hashPwd,
 		Name:         "Dummy user",
 	})
 	if err != nil {
 		log.Println("error getting user@dummyuser.domain ", err)
 		os.Exit(1)
 	}
+	log.Println("User Created")
 }

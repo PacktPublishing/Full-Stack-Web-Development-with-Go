@@ -137,7 +137,7 @@ UPDATE
     RETURNING Workout_ID;
 
 -- name: CreateUsers :one
-INSERT INTO gowebapp.users (User_Name, Pass_Word_Hash, name)
+INSERT INTO gowebapp.users (User_Name, PassWord_Hash, name)
 VALUES ($1,
         $2,
         $3) RETURNING *;

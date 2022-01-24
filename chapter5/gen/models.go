@@ -28,7 +28,7 @@ type GowebappSet struct {
 type GowebappUser struct {
 	UserID       int64           `db:"user_id" json:"userID"`
 	UserName     string          `db:"user_name" json:"userName"`
-	PassWordHash string          `db:"pass_word_hash" json:"passWordHash"`
+	PasswordHash string          `db:"password_hash" json:"passwordHash"`
 	Name         string          `db:"name" json:"name"`
 	Config       json.RawMessage `db:"config" json:"config"`
 	CreatedAt    time.Time       `db:"created_at" json:"createdAt"`

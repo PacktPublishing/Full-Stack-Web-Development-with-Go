@@ -64,25 +64,25 @@ func (q *Queries) CreateUserImage(ctx context.Context, arg CreateUserImageParams
 }
 
 const createUsers = `-- name: CreateUsers :one
-INSERT INTO gowebapp.users (User_Name, Pass_Word_Hash, name)
+INSERT INTO gowebapp.users (User_Name, PassWord_Hash, name)
 VALUES ($1,
         $2,
-        $3) RETURNING user_id, user_name, pass_word_hash, name, config, created_at, is_enabled
+        $3) RETURNING user_id, user_name, password_hash, name, config, created_at, is_enabled
 `
 
 type CreateUsersParams struct {
 	UserName     string `db:"user_name" json:"userName"`
-	PassWordHash string `db:"pass_word_hash" json:"passWordHash"`
+	PasswordHash string `db:"password_hash" json:"passwordHash"`
 	Name         string `db:"name" json:"name"`
 }
 
 func (q *Queries) CreateUsers(ctx context.Context, arg CreateUsersParams) (GowebappUser, error) {
-	row := q.db.QueryRowContext(ctx, createUsers, arg.UserName, arg.PassWordHash, arg.Name)
+	row := q.db.QueryRowContext(ctx, createUsers, arg.UserName, arg.PasswordHash, arg.Name)
 	var i GowebappUser
 	err := row.Scan(
 		&i.UserID,
 		&i.UserName,
-		&i.PassWordHash,
+		&i.PasswordHash,
 		&i.Name,
 		&i.Config,
 		&i.CreatedAt,
@@ -172,7 +172,7 @@ func (q *Queries) DeleteUsers(ctx context.Context, userID int64) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT user_id, user_name, pass_word_hash, name, config, created_at, is_enabled
+SELECT user_id, user_name, password_hash, name, config, created_at, is_enabled
 FROM gowebapp.users
 WHERE user_id = $1
 `
@@ -183,7 +183,7 @@ func (q *Queries) GetUser(ctx context.Context, userID int64) (GowebappUser, erro
 	err := row.Scan(
 		&i.UserID,
 		&i.UserName,
-		&i.PassWordHash,
+		&i.PasswordHash,
 		&i.Name,
 		&i.Config,
 		&i.CreatedAt,
@@ -193,7 +193,7 @@ func (q *Queries) GetUser(ctx context.Context, userID int64) (GowebappUser, erro
 }
 
 const getUserByName = `-- name: GetUserByName :one
-SELECT user_id, user_name, pass_word_hash, name, config, created_at, is_enabled
+SELECT user_id, user_name, password_hash, name, config, created_at, is_enabled
 FROM gowebapp.users
 WHERE user_name = $1
 `
@@ -204,7 +204,7 @@ func (q *Queries) GetUserByName(ctx context.Context, userName string) (GowebappU
 	err := row.Scan(
 		&i.UserID,
 		&i.UserName,
-		&i.PassWordHash,
+		&i.PasswordHash,
 		&i.Name,
 		&i.Config,
 		&i.CreatedAt,
@@ -417,7 +417,7 @@ func (q *Queries) ListSets(ctx context.Context) ([]GowebappSet, error) {
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT user_id, user_name, pass_word_hash, name, config, created_at, is_enabled
+SELECT user_id, user_name, password_hash, name, config, created_at, is_enabled
 FROM gowebapp.users
 ORDER BY user_name
 `
@@ -434,7 +434,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]GowebappUser, error) {
 		if err := rows.Scan(
 			&i.UserID,
 			&i.UserName,
-			&i.PassWordHash,
+			&i.PasswordHash,
 			&i.Name,
 			&i.Config,
 			&i.CreatedAt,
