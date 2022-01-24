@@ -74,7 +74,7 @@ func securityMiddleware(next http.Handler) http.Handler {
 
 		//otherwise it will need to be redirected to /login
 		storeAuthenticated(w, r, false)
-		http.Redirect(w, r, "/login", 307)
+		http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 	})
 }
 
