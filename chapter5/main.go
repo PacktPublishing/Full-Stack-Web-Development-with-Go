@@ -136,6 +136,14 @@ func validateUser(username string, password string) bool {
 	return pkg.CheckPasswordHash(password, u.PassWordHash)
 }
 
+func basicMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
+		log.Println("Middleware called on", req.URL.Path)
+		// do stuff
+		h.ServeHTTP(wr, req)
+	})
+}
+
 func main() {
 	log.Println("Server Version :", Version)
 	initDatabase()
@@ -174,14 +182,6 @@ func main() {
 	}
 
 	log.Fatal(srv.ListenAndServe())
-}
-
-func basicMiddleware(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
-		log.Println("Middleware called on", req.URL.Path)
-		// do stuff
-		h.ServeHTTP(wr, req)
-	})
 }
 
 func initDatabase() {
