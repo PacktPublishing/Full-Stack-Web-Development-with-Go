@@ -136,6 +136,14 @@ func validateUser(username string, password string) bool {
 	return pkg.CheckPasswordHash(password, u.PassWordHash)
 }
 
+func basicMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
+		log.Println("Middleware called on", req.URL.Path)
+		// do stuff
+		h.ServeHTTP(wr, req)
+	})
+}
+
 func main() {
 	log.Println("Server Version :", Version)
 	initDatabase()
@@ -162,6 +170,9 @@ func main() {
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/app", http.StatusPermanentRedirect)
 	})
+
+	// Use our basicMiddleware
+	router.Use(basicMiddleware)
 
 	srv := &http.Server{
 		Handler:      router,
