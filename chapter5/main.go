@@ -163,6 +163,9 @@ func main() {
 		http.Redirect(w, r, "/app", http.StatusPermanentRedirect)
 	})
 
+	// Use our basicMiddleware
+	router.Use(basicMiddleware)
+
 	srv := &http.Server{
 		Handler:      router,
 		Addr:         "127.0.0.1:3333",
@@ -171,6 +174,14 @@ func main() {
 	}
 
 	log.Fatal(srv.ListenAndServe())
+}
+
+func basicMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
+		log.Println("Middleware called on", req.URL.Path)
+		// do stuff
+		h.ServeHTTP(wr, req)
+	})
 }
 
 func initDatabase() {
