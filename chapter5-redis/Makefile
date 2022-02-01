@@ -11,7 +11,7 @@ DB_USER ?= postgres
 DB_PWD ?= mysecretpassword
 
 # psql URL
-IP=`ip -o route get to 8.8.8.8 | sed -n 's/.*src \([0-9.]\+\).*/\1/p'`
+IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' test-postgres`
 
 PSQLURL ?= $(DB_TYPE)://$(DB_USER):$(DB_PWD)@$(IP):5432/$(DB_NAME)
 
