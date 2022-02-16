@@ -16,12 +16,11 @@ type ListSets []Sets
 func (s Sets) AddSets(q *chapter6.Queries) error {
 	ctx := context.Background()
 
-	ex := Exercise{}
-	l := ex.ListExercise(s.ExerciseId, q)
+	ex, err := q.ListExercise(ctx, s.ExerciseId)
 
-	if l.ExerciseId != 0 {
+	if err == nil {
 		_, err := q.UpsertSet(ctx, chapter6.UpsertSetParams{
-			ExerciseID: s.ExerciseId,
+			ExerciseID: ex.ExerciseID,
 			Weight:     s.Weight,
 		})
 		return err
