@@ -6,10 +6,15 @@ import (
 	"context"
 )
 
+type LoginInterface interface {
+	ValidateUser(dbQuery *chapter6.Queries) bool
+}
+
 type Login struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
+
 type LoginResponse Response
 
 //ValidateUser check whether username/password exist in database
