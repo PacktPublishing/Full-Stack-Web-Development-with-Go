@@ -5,6 +5,12 @@ import (
 	"context"
 )
 
+type ExerciseInterface interface {
+	AddExercise(q *chapter6.Queries) error
+	ListExercise(i int64, q *chapter6.Queries) Exercise
+	ListExercises(q *chapter6.Queries) ListExercise
+}
+
 type Exercise struct {
 	ExerciseId   int64  `json:"exerciseid"`
 	ExerciseName string `json:"exercise"`
