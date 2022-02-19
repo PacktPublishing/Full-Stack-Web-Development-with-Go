@@ -47,7 +47,7 @@ func JSONError(rw http.ResponseWriter, errorCode int, errorMessages ...string) {
 func PrettyJSON(obj interface{}) []byte {
 	prettyJSON, err := json.MarshalIndent(obj, "", "  ")
 	if err != nil {
-		log.Fatal("Failed to generate json", err)
+		log.Println("Failed to generate json", err)
 	}
 	return prettyJSON
 }

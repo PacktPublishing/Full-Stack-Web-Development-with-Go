@@ -41,10 +41,8 @@ func main() {
 		log.Fatalln("Error from database ping:", err)
 	}
 
-	// Create the store
-	store := store.New(db)
 	// Create our demo user
-	createUserDb(store)
+	createUserInDb(db)
 
 	// Start our server
 	server := api.NewServer(internal.GetAsInt("SERVER_PORT", 9002))
@@ -54,13 +52,13 @@ func main() {
 	}
 	defer server.Stop()
 
-	protectedMiddleware := []mux.MiddlewareFunc{
+	defaultMiddleware := []mux.MiddlewareFunc{
 		api.JSONMiddleware,
 	}
 
-	server.AddRoute("/test", func(rw http.ResponseWriter, r *http.Request) {
-		log.Println("Here")
-	}, http.MethodGet, protectedMiddleware...)
+	// Handlers
+	server.AddRoute("/login", handleLogin(db), http.MethodPost, defaultMiddleware...)
+	server.AddRoute("/logout", handleLogout(), http.MethodGet, defaultMiddleware...)
 
 	// Wait for CTRL-C
 	sigChan := make(chan os.Signal, 1)
@@ -70,23 +68,20 @@ func main() {
 	<-sigChan
 }
 
-func createUserDb(s *store.Queries) {
-	//has the user been created
-	c := context.Background()
-	u, _ := s.GetUserByName(c, "user@user")
+func createUserInDb(db *sql.DB) {
 
-	if u.UserName == "user@user" {
-		log.Println("user@user exist...")
-		return
-	}
+	ctx := context.Background()
+	querier := store.New(db)
+
 	log.Println("Creating user@user...")
 	hashPwd, _ := internal.HashPassword("password")
-	_, err := s.CreateUsers(c, store.CreateUsersParams{
+
+	_, err := querier.CreateUsers(ctx, store.CreateUsersParams{
 		UserName:     "user@user",
 		PasswordHash: hashPwd,
 		Name:         "Dummy user",
 	})
 	if err != nil {
-		log.Printf("error creating test user: user@user - failed with err %v", err)
+		log.Println("Failed to create user:", err)
 	}
 }

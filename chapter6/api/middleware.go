@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/handlers"
 )
 
-// JSON middleware will ensure we handle valid JSON
+// JSON middleware will ensure we only handle JSON
 func JSONMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
 		contentType := req.Header.Get("Content-Type")
@@ -20,7 +20,6 @@ func JSONMiddleware(next http.Handler) http.Handler {
 				JSONError(wr, http.StatusBadRequest, "Bad or no content-type header found")
 				return
 			}
-
 		}
 
 		if contentType != "application/json" {

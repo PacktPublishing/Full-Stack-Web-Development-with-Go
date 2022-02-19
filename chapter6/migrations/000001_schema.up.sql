@@ -7,7 +7,8 @@ CREATE TABLE gowebapp.users (
     Name           TEXT NOT NULL,
     Config         JSONB DEFAULT '{}'::JSONB NOT NULL,
     Created_At     TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-    Is_Enabled     BOOLEAN DEFAULT TRUE NOT NULL
+    Is_Enabled     BOOLEAN DEFAULT TRUE NOT NULL,
+    UNIQUE (User_Name)
 );
 -- SQLc converts snake_case to CamelCase
 
