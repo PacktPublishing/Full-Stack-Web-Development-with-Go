@@ -1,27 +1,24 @@
 # database name
-DB_NAME ?= postgres
+DB_NAME ?= fullstackdb
 
 # database type
 DB_TYPE ?= postgres
 
 # database username
-DB_USER ?= postgres
+DB_USER ?= local
 
 # database password
-DB_PWD ?= mysecretpassword
+DB_PWD ?= asecurepassword
 
 # psql URL
 IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' test-postgres`
 
 PSQLURL ?= $(DB_TYPE)://$(DB_USER):$(DB_PWD)@$(IP):5432/$(DB_NAME)
 
-# sqlc yaml file
-SQLC_YAML ?= ./sqlc.yaml
-
 .PHONY : postgresup postgresdown psql createdb teardown_recreate generate
 
 postgresup:
-	docker run --name test-postgres -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 -d postgres
+	docker run --name test-postgres -e POSTGRES_PASSWORD=$(DB_PWD) -p 5432:5432 -d postgres
 
 postgresdown:
 	docker stop test-postgres  || true && 	docker rm test-postgres || true
@@ -40,4 +37,4 @@ teardown_recreate: postgresdown postgresup
 
 generate:
 	@echo "Generating Go models with sqlc "
-	sqlc generate -f $(SQLC_YAML)
+	go generate

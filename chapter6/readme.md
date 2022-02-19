@@ -26,8 +26,6 @@ $ migrate -path ./migrations -database "postgres://local:asecurepassword@localho
 1/u schema (48.903685ms)
 ```
 
-pgcli postgres://local:asecurepassword@localhost:5432/fullstackdb?sslmode=disable
-
 ### Build and run
 
 You can now re-generate the sqlc bindings and run your code.
