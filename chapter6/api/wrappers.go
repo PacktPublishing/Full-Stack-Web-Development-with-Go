@@ -21,10 +21,10 @@ func EmptyJSON() string {
 	return "{}"
 }
 
-func JSONError(rw http.ResponseWriter, errorCode int, errorMessages ...string) {
+func JSONError(wr http.ResponseWriter, errorCode int, errorMessages ...string) {
 	if len(errorMessages) > 1 {
-		rw.WriteHeader(errorCode)
-		json.NewEncoder(rw).Encode(struct {
+		wr.WriteHeader(errorCode)
+		json.NewEncoder(wr).Encode(struct {
 			Status string   `json:"status,omitempty"`
 			Errors []string `json:"errors,omitempty"`
 		}{
@@ -34,8 +34,8 @@ func JSONError(rw http.ResponseWriter, errorCode int, errorMessages ...string) {
 		return
 	}
 
-	rw.WriteHeader(errorCode)
-	json.NewEncoder(rw).Encode(struct {
+	wr.WriteHeader(errorCode)
+	json.NewEncoder(wr).Encode(struct {
 		Status string `json:"status,omitempty"`
 		Error  string `json:"error,omitempty"`
 	}{

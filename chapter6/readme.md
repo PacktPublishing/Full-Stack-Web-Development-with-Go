@@ -26,6 +26,8 @@ $ migrate -path ./migrations -database "postgres://local:asecurepassword@localho
 1/u schema (48.903685ms)
 ```
 
+pgcli postgres://local:asecurepassword@localhost:5432/fullstackdb?sslmode=disable
+
 ### Build and run
 
 You can now re-generate the sqlc bindings and run your code.
@@ -49,4 +51,15 @@ $ migrate create -ext sql -dir ./migrations -seq foo
 
 ## Usage
 
-... TBD
+Some example queries to check the endpoints
+
+```bash
+$ curl -H 'Content-Type: application/json' 0.0.0.0:9002/login -d '{"username":"user@user","password":"password"}'  -v
+...
+
+$ curl -H 'Content-Type: application/json' 0.0.0.0:9002/logout --cookie "session-name=MTY0NTI0Mjg3N3xEdi1CQkFFQ180SUFBUkFCRUFBQVJQLUNBQUlHYzNSeWFXNW5EQk1BRVhWelpYSkJkWFJvWlc1MGFXTmhkR1ZrQkdKdmIyd0NBZ0FCQm5OMGNtbHVad3dJQUFaMWMyVnlTVVFGYVc1ME5qUUVBZ0FDfFbfJpvzjHfx4smjTcKfLtE4TUpvF2iD49deT5pT5HUp"
+...
+
+$ curl -H 'Content-Type: application/json' 0.0.0.0:9002/checkSecret --cookie "session-name=MTY0NTI0MzEwMnxEdi1CQkFFQ180SUFBUkFCRUFBQVF2LUNBQUlHYzNSeWFXNW5EQWdBQm5WelpYSkpSQU5wYm5RRUFnQUJCbk4wY21sdVp3d1RBQkYxYzJWeVFYVjBhR1Z1ZEdsallYUmxaQVJpYjI5c0FnSUFBQT09fPbrpG8LjADQsUtdsJN3HNV4heCFQJp075Q4ommxe3mn"
+...
+```

@@ -13,16 +13,12 @@ import (
 	"os/signal"
 
 	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
-var (
-	cookieStore = sessions.NewCookieStore([]byte("forDemo"))
-)
-
 func main() {
+	log.SetFlags(log.Lshortfile | log.Ldate | log.Lmicroseconds)
 	dbURI := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
 		internal.GetAsString("DB_USER", "local"),
 		internal.GetAsString("DB_PASSWORD", "asecurepassword"),
@@ -60,6 +56,7 @@ func main() {
 	// Handlers
 	server.AddRoute("/login", handleLogin(db), http.MethodPost, defaultMiddleware...)
 	server.AddRoute("/logout", handleLogout(), http.MethodGet, defaultMiddleware...)
+	server.AddRoute("/checkSecret", checkSecret(db), http.MethodGet, defaultMiddleware...)
 
 	// Wait for CTRL-C
 	sigChan := make(chan os.Signal, 1)
