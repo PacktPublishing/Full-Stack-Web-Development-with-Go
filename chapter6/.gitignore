@@ -1,0 +1,10 @@
+
+# Enviroment variables
+/.env
+/.local.env
+/.local.mine.env
+
+.db.env
+
+.vscode
+/chapter6
