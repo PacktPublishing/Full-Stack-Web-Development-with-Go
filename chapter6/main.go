@@ -1,8 +1,8 @@
 package main
 
 import (
-	"chapter6/api"
 	"chapter6/internal"
+	"chapter6/internal/api"
 	"chapter6/store"
 	"context"
 	"database/sql"
@@ -14,7 +14,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/lib/pq"
-	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -49,12 +48,21 @@ func main() {
 
 	defaultMiddleware := []mux.MiddlewareFunc{
 		api.JSONMiddleware,
+		api.CORSMiddleware(internal.GetAsSlice("CORS_WHITELIST",
+			[]string{
+				"http://localhost:9000",
+				"http://0.0.0.0:9000",
+			}, ","),
+		),
 	}
 
 	// Handlers
 	server.AddRoute("/login", handleLogin(db), http.MethodPost, defaultMiddleware...)
 	server.AddRoute("/logout", handleLogout(), http.MethodGet, defaultMiddleware...)
-	server.AddRoute("/checkSecret", checkSecret(db), http.MethodGet, defaultMiddleware...)
+
+	// Our session protected middleware
+	protectedMiddleware := append(defaultMiddleware, validCookieMiddleware(db))
+	server.AddRoute("/checkSecret", checkSecret(db), http.MethodGet, protectedMiddleware...)
 
 	// Wait for CTRL-C
 	sigChan := make(chan os.Signal, 1)

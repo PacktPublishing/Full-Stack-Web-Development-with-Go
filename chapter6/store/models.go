@@ -8,7 +8,7 @@ import (
 )
 
 type GowebappExercise struct {
-	ExerciseID   int64  `db:"exercise_id"`
+	UserID       int64  `db:"user_id"`
 	ExerciseName string `db:"exercise_name"`
 }
 
@@ -20,9 +20,13 @@ type GowebappImage struct {
 }
 
 type GowebappSet struct {
-	SetID      int64 `db:"set_id"`
-	ExerciseID int64 `db:"exercise_id"`
-	Weight     int32 `db:"weight"`
+	SetID        int64  `db:"set_id"`
+	WorkoutID    int64  `db:"workout_id"`
+	ExerciseName string `db:"exercise_name"`
+	Weight       int32  `db:"weight"`
+	Set1         int64  `db:"set1"`
+	Set2         int64  `db:"set2"`
+	Set3         int64  `db:"set3"`
 }
 
 type GowebappUser struct {
@@ -38,6 +42,5 @@ type GowebappUser struct {
 type GowebappWorkout struct {
 	WorkoutID int64     `db:"workout_id"`
 	UserID    int64     `db:"user_id"`
-	SetID     int64     `db:"set_id"`
 	StartDate time.Time `db:"start_date"`
 }

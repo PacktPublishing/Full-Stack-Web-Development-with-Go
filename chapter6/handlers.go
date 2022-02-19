@@ -1,8 +1,8 @@
 package main
 
 import (
-	"chapter6/api"
 	"chapter6/internal"
+	"chapter6/internal/api"
 	"chapter6/store"
 	"database/sql"
 	"encoding/json"
@@ -69,28 +69,12 @@ func handleLogin(db *sql.DB) http.HandlerFunc {
 
 func checkSecret(db *sql.DB) http.HandlerFunc {
 	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
-		session, err := cookieStore.Get(req, "session-name")
-		if err != nil {
-			log.Println("Cookie store failed with", err)
-			api.JSONError(wr, http.StatusInternalServerError, "Session Error")
-			return
-		}
-
-		// See what values were presented
-		log.Println(session.Values)
-
-		userID := session.Values["userID"].(int64)
-		isAuthd := session.Values["userAuthenticated"].(bool)
-
-		if !isAuthd || userID < 0 {
-			api.JSONError(wr, http.StatusForbidden, "Bad Credentials")
-			return
-		}
+		userDetails, _ := userFromSession(req)
 
 		querier := store.New(db)
-		user, err := querier.GetUser(req.Context(), int64(userID))
+		user, err := querier.GetUser(req.Context(), userDetails.UserID)
 		if errors.Is(err, sql.ErrNoRows) {
-			api.JSONError(wr, http.StatusForbidden, "Bad Credentials")
+			api.JSONError(wr, http.StatusForbidden, "User not found")
 			return
 		}
 		_ = json.NewEncoder(wr).Encode(struct {
