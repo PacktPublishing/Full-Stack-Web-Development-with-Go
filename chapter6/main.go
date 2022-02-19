@@ -14,6 +14,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
@@ -81,6 +82,16 @@ func createUserInDb(db *sql.DB) {
 		PasswordHash: hashPwd,
 		Name:         "Dummy user",
 	})
+
+	// This is interesting to look at, the sql/pq library recommends we use
+	// this pattern to understand errors. We could use the ErrorCode directly
+	// or look for the specific type. We know we'll be violating unique_violation
+	// if our user already exists in the database
+	if err, ok := err.(*pq.Error); ok && err.Code.Name() == "unique_violation" {
+		log.Println("Dummy User already present")
+		return
+	}
+
 	if err != nil {
 		log.Println("Failed to create user:", err)
 	}
