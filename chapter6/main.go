@@ -1,8 +1,8 @@
 package main
 
 import (
-	"chapter6/api"
 	"chapter6/internal"
+	"chapter6/internal/api"
 	"chapter6/store"
 	"context"
 	"database/sql"

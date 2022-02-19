@@ -9,9 +9,9 @@ import (
 
 const createDefaultSetForExercise = `-- name: CreateDefaultSetForExercise :one
 INSERT INTO gowebapp.sets (
-  	Workout_ID,
-    Exercise_Name, 
-    Weight      
+    Workout_ID,
+    Exercise_Name,
+    Weight
 ) VALUES (
     $1,
     $2,
@@ -42,7 +42,7 @@ func (q *Queries) CreateDefaultSetForExercise(ctx context.Context, arg CreateDef
 
 const createSetForExercise = `-- name: CreateSetForExercise :one
 INSERT INTO gowebapp.sets (
-  	Workout_ID,
+    Workout_ID,
     Exercise_Name, 
     Weight,
     Set1,
