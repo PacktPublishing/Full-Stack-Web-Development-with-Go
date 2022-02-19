@@ -31,7 +31,6 @@ func validCookieMiddleware(db *sql.DB) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
 			session, err := cookieStore.Get(req, "session-name")
 			if err != nil {
-				log.Println("Cookie store failed with", err)
 				api.JSONError(wr, http.StatusInternalServerError, "Session Error")
 				return
 			}
