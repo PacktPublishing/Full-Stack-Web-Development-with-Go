@@ -99,6 +99,13 @@ func checkSecret(db *sql.DB) http.HandlerFunc {
 	})
 }
 
+func sayHello() http.HandlerFunc {
+	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
+		userDetails, ok := userFromSession(req)
+		log.Println(userDetails, ok)
+	})
+}
+
 func handleLogout() http.HandlerFunc {
 	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
 		session, err := cookieStore.Get(req, "session-name")
