@@ -8,39 +8,39 @@ import (
 )
 
 type GowebappExercise struct {
-	UserID       int64  `db:"user_id"`
-	ExerciseName string `db:"exercise_name"`
+	UserID       int64  `json:"user_id"`
+	ExerciseName string `json:"exercise_name"`
 }
 
 type GowebappImage struct {
-	ImageID     int64  `db:"image_id"`
-	UserID      int64  `db:"user_id"`
-	ContentType string `db:"content_type"`
-	ImageData   []byte `db:"image_data"`
+	ImageID     int64  `json:"image_id"`
+	UserID      int64  `json:"user_id"`
+	ContentType string `json:"content_type"`
+	ImageData   []byte `json:"image_data"`
 }
 
 type GowebappSet struct {
-	SetID        int64  `db:"set_id"`
-	WorkoutID    int64  `db:"workout_id"`
-	ExerciseName string `db:"exercise_name"`
-	Weight       int32  `db:"weight"`
-	Set1         int64  `db:"set1"`
-	Set2         int64  `db:"set2"`
-	Set3         int64  `db:"set3"`
+	SetID        int64  `json:"set_id"`
+	WorkoutID    int64  `json:"workout_id"`
+	ExerciseName string `json:"exercise_name"`
+	Weight       int32  `json:"weight"`
+	Set1         int64  `json:"set1"`
+	Set2         int64  `json:"set2"`
+	Set3         int64  `json:"set3"`
 }
 
 type GowebappUser struct {
-	UserID       int64           `db:"user_id"`
-	UserName     string          `db:"user_name"`
-	PasswordHash string          `db:"password_hash"`
-	Name         string          `db:"name"`
-	Config       json.RawMessage `db:"config"`
-	CreatedAt    time.Time       `db:"created_at"`
-	IsEnabled    bool            `db:"is_enabled"`
+	UserID       int64           `json:"user_id"`
+	UserName     string          `json:"user_name"`
+	PasswordHash string          `json:"password_hash"`
+	Name         string          `json:"name"`
+	Config       json.RawMessage `json:"config"`
+	CreatedAt    time.Time       `json:"created_at"`
+	IsEnabled    bool            `json:"is_enabled"`
 }
 
 type GowebappWorkout struct {
-	WorkoutID int64     `db:"workout_id"`
-	UserID    int64     `db:"user_id"`
-	StartDate time.Time `db:"start_date"`
+	WorkoutID int64     `json:"workout_id"`
+	UserID    int64     `json:"user_id"`
+	StartDate time.Time `json:"start_date"`
 }

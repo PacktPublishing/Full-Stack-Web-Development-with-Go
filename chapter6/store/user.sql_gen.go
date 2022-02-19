@@ -15,9 +15,9 @@ values ($1,
 `
 
 type CreateUserImageParams struct {
-	UserID      int64  `db:"user_id"`
-	ContentType string `db:"content_type"`
-	ImageData   []byte `db:"image_data"`
+	UserID      int64  `json:"user_id"`
+	ContentType string `json:"content_type"`
+	ImageData   []byte `json:"image_data"`
 }
 
 func (q *Queries) CreateUserImage(ctx context.Context, arg CreateUserImageParams) (GowebappImage, error) {
@@ -40,9 +40,9 @@ VALUES ($1,
 `
 
 type CreateUsersParams struct {
-	UserName     string `db:"user_name"`
-	PasswordHash string `db:"password_hash"`
-	Name         string `db:"name"`
+	UserName     string `json:"user_name"`
+	PasswordHash string `json:"password_hash"`
+	Name         string `json:"name"`
 }
 
 func (q *Queries) CreateUsers(ctx context.Context, arg CreateUsersParams) (GowebappUser, error) {
@@ -144,9 +144,9 @@ WHERE u.user_id = i.user_id
 `
 
 type GetUserImageRow struct {
-	Name      string `db:"name"`
-	UserID    int64  `db:"user_id"`
-	ImageData []byte `db:"image_data"`
+	Name      string `json:"name"`
+	UserID    int64  `json:"user_id"`
+	ImageData []byte `json:"image_data"`
 }
 
 func (q *Queries) GetUserImage(ctx context.Context, userID int64) (GetUserImageRow, error) {
@@ -168,7 +168,7 @@ func (q *Queries) ListImages(ctx context.Context) ([]GowebappImage, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GowebappImage
+	items := []GowebappImage{}
 	for rows.Next() {
 		var i GowebappImage
 		if err := rows.Scan(
@@ -202,7 +202,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]GowebappUser, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GowebappUser
+	items := []GowebappUser{}
 	for rows.Next() {
 		var i GowebappUser
 		if err := rows.Scan(

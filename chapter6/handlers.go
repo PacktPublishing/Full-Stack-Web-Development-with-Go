@@ -10,7 +10,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 )
 
@@ -26,16 +28,16 @@ func init() {
 	}
 }
 
-type loginRequest struct {
-	Username string `json:"username,omitempty"`
-	Password string `json:"password,omitempty"`
-}
-
 func handleLogin(db *sql.DB) http.HandlerFunc {
 	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
 
 		// Thanks to our middleware, we know we have JSON
 		// we'll decode it into our request type and see if it's valid
+		type loginRequest struct {
+			Username string `json:"username,omitempty"`
+			Password string `json:"password,omitempty"`
+		}
+
 		payload := loginRequest{}
 		if err := json.NewDecoder(req.Body).Decode(&payload); err != nil {
 			log.Println("Error decoding the body", err)
@@ -77,9 +79,8 @@ func checkSecret(db *sql.DB) http.HandlerFunc {
 			api.JSONError(wr, http.StatusForbidden, "User not found")
 			return
 		}
-		_ = json.NewEncoder(wr).Encode(struct {
-			Message string
-		}{Message: fmt.Sprintf("Hello there %s", user.Name)})
+
+		api.JSONMessage(wr, http.StatusOK, fmt.Sprintf("Hello there %s", user.Name))
 	})
 }
 
@@ -98,13 +99,119 @@ func handleLogout() http.HandlerFunc {
 
 		err = session.Save(req, wr)
 		if err != nil {
-			log.Println("Failed to save session")
 			api.JSONError(wr, http.StatusInternalServerError, "Session Error")
 			return
 		}
 
-		_ = json.NewEncoder(wr).Encode(struct {
-			Message string
-		}{Message: "logout ok"})
+		api.JSONMessage(wr, http.StatusOK, "logout successful")
+	})
+}
+
+func handlecreateNewWorkout(db *sql.DB) http.HandlerFunc {
+	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
+		userDetails, ok := userFromSession(req)
+		if !ok {
+			api.JSONError(wr, http.StatusForbidden, "Bad context")
+			return
+		}
+		querier := store.New(db)
+
+		res, err := querier.CreateUserWorkout(req.Context(), userDetails.UserID)
+		if err != nil {
+			api.JSONError(wr, http.StatusInternalServerError, err.Error())
+			return
+		}
+
+		json.NewEncoder(wr).Encode(&res)
+
+	})
+}
+
+func handleListWorkouts(db *sql.DB) http.HandlerFunc {
+	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
+		userDetails, ok := userFromSession(req)
+		if !ok {
+			api.JSONError(wr, http.StatusForbidden, "Bad context")
+			return
+		}
+
+		querier := store.New(db)
+		workouts, err := querier.GetWorkoutsForUserID(req.Context(), userDetails.UserID)
+		if err != nil {
+			api.JSONError(wr, http.StatusInternalServerError, err.Error())
+			return
+		}
+		json.NewEncoder(wr).Encode(&workouts)
+	})
+}
+
+func handleAddSet(db *sql.DB) http.HandlerFunc {
+	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
+
+		workoutID, err := strconv.Atoi(mux.Vars(req)["workout_id"])
+		if err != nil {
+			api.JSONError(wr, http.StatusBadRequest, "Bad workout_id")
+			return
+		}
+
+		type newSetRequest struct {
+			ExerciseName string `json:"exercise_name,omitempty"`
+			Weight       int    `json:"weight,omitempty"`
+		}
+
+		payload := newSetRequest{}
+		if err := json.NewDecoder(req.Body).Decode(&payload); err != nil {
+			log.Println("Error decoding the body", err)
+			api.JSONError(wr, http.StatusBadRequest, "Error decoding JSON")
+			return
+		}
+
+		querier := store.New(db)
+
+		set, err := querier.CreateDefaultSetForExercise(req.Context(),
+			store.CreateDefaultSetForExerciseParams{
+				WorkoutID:    int64(workoutID),
+				ExerciseName: payload.ExerciseName,
+				Weight:       int32(payload.Weight),
+			})
+		if err != nil {
+			api.JSONError(wr, http.StatusInternalServerError, err.Error())
+			return
+		}
+		json.NewEncoder(wr).Encode(&set)
+	})
+}
+
+func handleUpdateSet(db *sql.DB) http.HandlerFunc {
+	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
+		// TODO
+	})
+}
+
+func handleDeleteWorkout(db *sql.DB) http.HandlerFunc {
+	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
+		userDetails, ok := userFromSession(req)
+		if !ok {
+			api.JSONError(wr, http.StatusForbidden, "Bad context")
+			return
+		}
+
+		workoutID, err := strconv.Atoi(mux.Vars(req)["workout_id"])
+		if err != nil {
+			api.JSONError(wr, http.StatusBadRequest, "Bad workout_id")
+			return
+		}
+
+		err = store.New(db).DeleteWorkoutByIDForUser(req.Context(), store.DeleteWorkoutByIDForUserParams{
+			UserID:    userDetails.UserID,
+			WorkoutID: int64(workoutID),
+		})
+
+		if err != nil {
+			api.JSONError(wr, http.StatusBadRequest, "Bad workout_id")
+			return
+		}
+
+		api.JSONMessage(wr, http.StatusOK, fmt.Sprintf("Workout %d is deleted", workoutID))
 	})
 }

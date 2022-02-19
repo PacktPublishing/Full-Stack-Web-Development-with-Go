@@ -64,6 +64,13 @@ func main() {
 	protectedMiddleware := append(defaultMiddleware, validCookieMiddleware(db))
 	server.AddRoute("/checkSecret", checkSecret(db), http.MethodGet, protectedMiddleware...)
 
+	// Workouts
+	server.AddRoute("/workout", handlecreateNewWorkout(db), http.MethodPost, protectedMiddleware...)
+	server.AddRoute("/workout", handleListWorkouts(db), http.MethodGet, protectedMiddleware...)
+	server.AddRoute("/workout/{workout_id}", handleDeleteWorkout(db), http.MethodDelete, protectedMiddleware...)
+	server.AddRoute("/workout/{workout_id}", handleAddSet(db), http.MethodPost, protectedMiddleware...)
+	server.AddRoute("/workout/{workout_id}/{set_id}", handleUpdateSet(db), http.MethodPut, protectedMiddleware...)
+
 	// Wait for CTRL-C
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt)
@@ -78,7 +85,7 @@ func createUserInDb(db *sql.DB) {
 	querier := store.New(db)
 
 	log.Println("Creating user@user...")
-	hashPwd, _ := internal.HashPassword("password")
+	hashPwd := internal.HashPassword("password")
 
 	_, err := querier.CreateUsers(ctx, store.CreateUsersParams{
 		UserName:     "user@user",

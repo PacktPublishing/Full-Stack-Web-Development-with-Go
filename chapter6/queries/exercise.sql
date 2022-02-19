@@ -28,7 +28,7 @@ INSERT INTO gowebapp.exercises (
     'Bench Press'
 ),(
     1,
-    'Barbell row'
+    'Barbell Row'
 );
 
 -- name: CreateUserWorkout :one
@@ -70,8 +70,21 @@ INSERT INTO gowebapp.sets (
 
 -- name: UpdateSet :one
 UPDATE gowebapp.sets SET
-    Weight = $2,
-    Set1 = $3,
-    Set2 = $4,
-    Set3 = $5
-WHERE Set_ID = $1 RETURNING *;
+    Weight = $1,
+    Set1 = $2,
+    Set2 = $3,
+    Set3 = $4
+WHERE Set_ID = $5 AND Workout_ID = $6 RETURNING *;
+
+-- name: GetWorkoutsForUserID :many
+SELECT w.Workout_ID, COALESCE(s.Set_ID,-1), COALESCE(s.name,''), COALESCE(s.set1,-1), COALESCE(s.set1,-1), COALESCE(s.set2,-1), COALESCE(s.set3,-1), COALESCE(s.weight,-1), w.Start_Date AS date FROM
+(
+SELECT Set_ID, Workout_ID, Exercise_Name as name, set1, set2, set3, weight FROM gowebapp.sets
+) AS s RIGHT JOIN gowebapp.workouts AS w USING (Workout_ID)
+WHERE w.User_ID = $1
+ORDER BY date DESC;
+
+
+-- name: DeleteWorkoutByIDForUser :exec
+DELETE FROM gowebapp.workouts
+WHERE User_ID = $1 AND Workout_ID = $2;

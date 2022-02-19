@@ -52,12 +52,21 @@ $ migrate create -ext sql -dir ./migrations -seq foo
 Some example queries to check the endpoints
 
 ```bash
-$ curl -H 'Content-Type: application/json' 0.0.0.0:9002/login -d '{"username":"user@user","password":"password"}'  -v
-...
+# Login
+curl -H 'Content-Type: application/json' 0.0.0.0:9002/login -d '{"username":"user@user","password":"password"}'  -v
 
-$ curl -H 'Content-Type: application/json' 0.0.0.0:9002/logout --cookie "session-name=MTY0NTI0Mjg3N3xEdi1CQkFFQ180SUFBUkFCRUFBQVJQLUNBQUlHYzNSeWFXNW5EQk1BRVhWelpYSkJkWFJvWlc1MGFXTmhkR1ZrQkdKdmIyd0NBZ0FCQm5OMGNtbHVad3dJQUFaMWMyVnlTVVFGYVc1ME5qUUVBZ0FDfFbfJpvzjHfx4smjTcKfLtE4TUpvF2iD49deT5pT5HUp"
-...
+# Get a list of previous workouts and their sets
+curl -X GET -H 'Content-Type: application/json' 0.0.0.0:9002/workout --cookie 'session-name=MTY0NTI2MTczNXxEdi1CQkFFQ180SUFBUkFCRUFBQVJQLUNBQUlHYzNSeWFXNW5EQk1BRVhWelpYSkJkWFJvWlc1MGFXTmhkR1ZrQkdKdmIyd0NBZ0FCQm5OMGNtbHVad3dJQUFaMWMyVnlTVVFGYVc1ME5qUUVBZ0FDfMwSOVjl_-nwIrsRVE1b5Q2ss-kd_RyObfoO-HlrVP0j;'
 
-$ curl -H 'Content-Type: application/json' 0.0.0.0:9002/checkSecret --cookie "session-name=MTY0NTI0MzEwMnxEdi1CQkFFQ180SUFBUkFCRUFBQVF2LUNBQUlHYzNSeWFXNW5EQWdBQm5WelpYSkpSQU5wYm5RRUFnQUJCbk4wY21sdVp3d1RBQkYxYzJWeVFYVjBhR1Z1ZEdsallYUmxaQVJpYjI5c0FnSUFBQT09fPbrpG8LjADQsUtdsJN3HNV4heCFQJp075Q4ommxe3mn"
+# Add a new workout (with no entries)
+curl -X POST -H 'Content-Type: application/json' 0.0.0.0:9002/workout --cookie 'session-name=MTY0NTI2MTczNXxEdi1CQkFFQ180SUFBUkFCRUFBQVJQLUNBQUlHYzNSeWFXNW5EQk1BRVhWelpYSkJkWFJvWlc1MGFXTmhkR1ZrQkdKdmIyd0NBZ0FCQm5OMGNtbHVad3dJQUFaMWMyVnlTVVFGYVc1ME5qUUVBZ0FDfMwSOVjl_-nwIrsRVE1b5Q2ss-kd_RyObfoO-HlrVP0j;'
+
+
+## Delete a workout
+curl -X DELETE -H 'Content-Type: application/json' 0.0.0.0:9002/workout/1 --cookie 'session-name=MTY0NTI2MTczNXxEdi1CQkFFQ180SUFBUkFCRUFBQVJQLUNBQUlHYzNSeWFXNW5EQk1BRVhWelpYSkJkWFJvWlc1MGFXTmhkR1ZrQkdKdmIyd0NBZ0FCQm5OMGNtbHVad3dJQUFaMWMyVnlTVVFGYVc1ME5qUUVBZ0FDfMwSOVjl_-nwIrsRVE1b5Q2ss-kd_RyObfoO-HlrVP0j;'
+
+## Add a set to a workout
+curl -X POST -H 'Content-Type: application/json' 0.0.0.0:9002/workout/5 --cookie 'session-name=MTY0NTI2MTczNXxEdi1CQkFFQ180SUFBUkFCRUFBQVJQLUNBQUlHYzNSeWFXNW5EQk1BRVhWelpYSkJkWFJvWlc1MGFXTmhkR1ZrQkdKdmIyd0NBZ0FCQm5OMGNtbHVad3dJQUFaMWMyVnlTVVFGYVc1ME5qUUVBZ0FDfMwSOVjl_-nwIrsRVE1b5Q2ss-kd_RyObfoO-HlrVP0j;' -d '{"exercise_name": "Barbell Rows", "weight":700'}
+
 ...
 ```

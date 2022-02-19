@@ -5,6 +5,7 @@ package store
 
 import (
 	"context"
+	"time"
 )
 
 const createDefaultSetForExercise = `-- name: CreateDefaultSetForExercise :one
@@ -20,9 +21,9 @@ INSERT INTO gowebapp.sets (
 `
 
 type CreateDefaultSetForExerciseParams struct {
-	WorkoutID    int64  `db:"workout_id"`
-	ExerciseName string `db:"exercise_name"`
-	Weight       int32  `db:"weight"`
+	WorkoutID    int64  `json:"workout_id"`
+	ExerciseName string `json:"exercise_name"`
+	Weight       int32  `json:"weight"`
 }
 
 func (q *Queries) CreateDefaultSetForExercise(ctx context.Context, arg CreateDefaultSetForExerciseParams) (GowebappSet, error) {
@@ -59,12 +60,12 @@ INSERT INTO gowebapp.sets (
 `
 
 type CreateSetForExerciseParams struct {
-	WorkoutID    int64  `db:"workout_id"`
-	ExerciseName string `db:"exercise_name"`
-	Weight       int32  `db:"weight"`
-	Set1         int64  `db:"set1"`
-	Set2         int64  `db:"set2"`
-	Set3         int64  `db:"set3"`
+	WorkoutID    int64  `json:"workout_id"`
+	ExerciseName string `json:"exercise_name"`
+	Weight       int32  `json:"weight"`
+	Set1         int64  `json:"set1"`
+	Set2         int64  `json:"set2"`
+	Set3         int64  `json:"set3"`
 }
 
 func (q *Queries) CreateSetForExercise(ctx context.Context, arg CreateSetForExerciseParams) (GowebappSet, error) {
@@ -98,7 +99,7 @@ INSERT INTO gowebapp.exercises (
     'Bench Press'
 ),(
     1,
-    'Barbell row'
+    'Barbell Row'
 )
 `
 
@@ -120,8 +121,8 @@ INSERT INTO gowebapp.exercises (
 `
 
 type CreateUserExerciseParams struct {
-	UserID       int64  `db:"user_id"`
-	ExerciseName string `db:"exercise_name"`
+	UserID       int64  `json:"user_id"`
+	ExerciseName string `json:"exercise_name"`
 }
 
 func (q *Queries) CreateUserExercise(ctx context.Context, arg CreateUserExerciseParams) (interface{}, error) {
@@ -154,13 +155,82 @@ WHERE User_ID = $1 AND Exercise_Name = $2
 `
 
 type DeleteUserExerciseParams struct {
-	UserID       int64  `db:"user_id"`
-	ExerciseName string `db:"exercise_name"`
+	UserID       int64  `json:"user_id"`
+	ExerciseName string `json:"exercise_name"`
 }
 
 func (q *Queries) DeleteUserExercise(ctx context.Context, arg DeleteUserExerciseParams) error {
 	_, err := q.db.ExecContext(ctx, deleteUserExercise, arg.UserID, arg.ExerciseName)
 	return err
+}
+
+const deleteWorkoutByIDForUser = `-- name: DeleteWorkoutByIDForUser :exec
+DELETE FROM gowebapp.workouts
+WHERE User_ID = $1 AND Workout_ID = $2
+`
+
+type DeleteWorkoutByIDForUserParams struct {
+	UserID    int64 `json:"user_id"`
+	WorkoutID int64 `json:"workout_id"`
+}
+
+func (q *Queries) DeleteWorkoutByIDForUser(ctx context.Context, arg DeleteWorkoutByIDForUserParams) error {
+	_, err := q.db.ExecContext(ctx, deleteWorkoutByIDForUser, arg.UserID, arg.WorkoutID)
+	return err
+}
+
+const getWorkoutsForUserID = `-- name: GetWorkoutsForUserID :many
+SELECT w.Workout_ID, COALESCE(s.Set_ID,-1), COALESCE(s.name,''), COALESCE(s.set1,-1), COALESCE(s.set1,-1), COALESCE(s.set2,-1), COALESCE(s.set3,-1), COALESCE(s.weight,-1), w.Start_Date AS date FROM
+(
+SELECT Set_ID, Workout_ID, Exercise_Name as name, set1, set2, set3, weight FROM gowebapp.sets
+) AS s RIGHT JOIN gowebapp.workouts AS w USING (Workout_ID)
+WHERE w.User_ID = $1
+ORDER BY date DESC
+`
+
+type GetWorkoutsForUserIDRow struct {
+	WorkoutID int64     `json:"workout_id"`
+	SetID     int64     `json:"set_id"`
+	Name      string    `json:"name"`
+	Set1      int64     `json:"set1"`
+	Set1_2    int64     `json:"set1_2"`
+	Set2      int64     `json:"set2"`
+	Set3      int64     `json:"set3"`
+	Weight    int32     `json:"weight"`
+	Date      time.Time `json:"date"`
+}
+
+func (q *Queries) GetWorkoutsForUserID(ctx context.Context, userID int64) ([]GetWorkoutsForUserIDRow, error) {
+	rows, err := q.db.QueryContext(ctx, getWorkoutsForUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetWorkoutsForUserIDRow{}
+	for rows.Next() {
+		var i GetWorkoutsForUserIDRow
+		if err := rows.Scan(
+			&i.WorkoutID,
+			&i.SetID,
+			&i.Name,
+			&i.Set1,
+			&i.Set1_2,
+			&i.Set2,
+			&i.Set3,
+			&i.Weight,
+			&i.Date,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listUserExercises = `-- name: ListUserExercises :many
@@ -175,7 +245,7 @@ func (q *Queries) ListUserExercises(ctx context.Context, userID int64) ([]string
 		return nil, err
 	}
 	defer rows.Close()
-	var items []string
+	items := []string{}
 	for rows.Next() {
 		var exercise_name string
 		if err := rows.Scan(&exercise_name); err != nil {
@@ -194,28 +264,30 @@ func (q *Queries) ListUserExercises(ctx context.Context, userID int64) ([]string
 
 const updateSet = `-- name: UpdateSet :one
 UPDATE gowebapp.sets SET
-    Weight = $2,
-    Set1 = $3,
-    Set2 = $4,
-    Set3 = $5
-WHERE Set_ID = $1 RETURNING set_id, workout_id, exercise_name, weight, set1, set2, set3
+    Weight = $1,
+    Set1 = $2,
+    Set2 = $3,
+    Set3 = $4
+WHERE Set_ID = $5 AND Workout_ID = $6 RETURNING set_id, workout_id, exercise_name, weight, set1, set2, set3
 `
 
 type UpdateSetParams struct {
-	SetID  int64 `db:"set_id"`
-	Weight int32 `db:"weight"`
-	Set1   int64 `db:"set1"`
-	Set2   int64 `db:"set2"`
-	Set3   int64 `db:"set3"`
+	Weight    int32 `json:"weight"`
+	Set1      int64 `json:"set1"`
+	Set2      int64 `json:"set2"`
+	Set3      int64 `json:"set3"`
+	SetID     int64 `json:"set_id"`
+	WorkoutID int64 `json:"workout_id"`
 }
 
 func (q *Queries) UpdateSet(ctx context.Context, arg UpdateSetParams) (GowebappSet, error) {
 	row := q.db.QueryRowContext(ctx, updateSet,
-		arg.SetID,
 		arg.Weight,
 		arg.Set1,
 		arg.Set2,
 		arg.Set3,
+		arg.SetID,
+		arg.WorkoutID,
 	)
 	var i GowebappSet
 	err := row.Scan(

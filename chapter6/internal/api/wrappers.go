@@ -14,16 +14,12 @@ func WrapEmptyJSON(data []byte) []byte {
 	if len(data) > 0 {
 		return data
 	}
-	return []byte(EmptyJSON())
-}
-
-func EmptyJSON() string {
-	return "{}"
+	return []byte("{}}")
 }
 
 func JSONError(wr http.ResponseWriter, errorCode int, errorMessages ...string) {
+	wr.WriteHeader(errorCode)
 	if len(errorMessages) > 1 {
-		wr.WriteHeader(errorCode)
 		json.NewEncoder(wr).Encode(struct {
 			Status string   `json:"status,omitempty"`
 			Errors []string `json:"errors,omitempty"`
@@ -34,13 +30,34 @@ func JSONError(wr http.ResponseWriter, errorCode int, errorMessages ...string) {
 		return
 	}
 
-	wr.WriteHeader(errorCode)
 	json.NewEncoder(wr).Encode(struct {
 		Status string `json:"status,omitempty"`
 		Error  string `json:"error,omitempty"`
 	}{
 		Status: fmt.Sprintf("%d / %s", errorCode, http.StatusText(errorCode)),
 		Error:  errorMessages[0],
+	})
+}
+
+func JSONMessage(wr http.ResponseWriter, code int, messages ...string) {
+	wr.WriteHeader(code)
+	if len(messages) > 1 {
+		json.NewEncoder(wr).Encode(struct {
+			Status   string   `json:"status,omitempty"`
+			Messages []string `json:"messages,omitempty"`
+		}{
+			Status:   fmt.Sprintf("%d / %s", code, http.StatusText(code)),
+			Messages: messages,
+		})
+		return
+	}
+
+	json.NewEncoder(wr).Encode(struct {
+		Status  string `json:"status,omitempty"`
+		Message string `json:"message,omitempty"`
+	}{
+		Status:  fmt.Sprintf("%d / %s", code, http.StatusText(code)),
+		Message: messages[0],
 	})
 }
 
