@@ -6,7 +6,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"log"
 	"net/http"
 )
 
@@ -35,13 +34,10 @@ func validCookieMiddleware(db *sql.DB) func(http.Handler) http.Handler {
 				return
 			}
 
-			// See what values were presented
-			log.Println(session.Values)
-
 			userID := session.Values["userID"].(int64)
 			isAuthd := session.Values["userAuthenticated"].(bool)
 
-			if !isAuthd || userID < 0 {
+			if !isAuthd || userID < 1 {
 				api.JSONError(wr, http.StatusForbidden, "Bad Credentials")
 				return
 			}

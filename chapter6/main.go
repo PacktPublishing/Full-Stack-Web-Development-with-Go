@@ -59,11 +59,10 @@ func main() {
 	// Handlers
 	server.AddRoute("/login", handleLogin(db), http.MethodPost, defaultMiddleware...)
 	server.AddRoute("/logout", handleLogout(), http.MethodGet, defaultMiddleware...)
-	server.AddRoute("/checkSecret", checkSecret(db), http.MethodGet, defaultMiddleware...)
 
 	// Our session protected middleware
 	protectedMiddleware := append(defaultMiddleware, validCookieMiddleware(db))
-	server.AddRoute("/fromContext", sayHello(), http.MethodGet, protectedMiddleware...)
+	server.AddRoute("/checkSecret", checkSecret(db), http.MethodGet, protectedMiddleware...)
 
 	// Wait for CTRL-C
 	sigChan := make(chan os.Signal, 1)
