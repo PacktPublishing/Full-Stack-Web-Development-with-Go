@@ -14,7 +14,7 @@ migrations as well as to create new ones. We need to install that first.
 
 ```bash
 $ go install github.com/kyleconroy/sqlc/cmd/sqlc@latest
-$ go install -u -tags 'postgres' github.com/golang-migrate/migrate/cli
+$ go get -u -tags 'postgres' github.com/golang-migrate/migrate/cli
 ...
 ```
 

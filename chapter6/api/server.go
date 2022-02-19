@@ -33,7 +33,9 @@ func (c *Server) AddRoute(path string, handler http.HandlerFunc, method string, 
 	log.Printf("Added route: [%v] [%v]", path, method)
 }
 
-func (c *Server) Start() error {
+// MustStart will start the server and if it cannot bind to the port
+// it will exit with a fatal log message
+func (c *Server) MustStart() {
 	_, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -58,7 +60,6 @@ func (c *Server) Start() error {
 		log.Println("API server stopped")
 		c.wg.Done()
 	}()
-	return nil
 }
 
 // Stop stops the API Server
@@ -78,6 +79,7 @@ func (c *Server) Stop() error {
 			log.Printf("API server: stopped with error %v", err)
 			return err
 		}
+		return err
 	}
 
 	c.wg.Wait()

@@ -44,9 +44,7 @@ func main() {
 	// Start our server
 	server := api.NewServer(internal.GetAsInt("SERVER_PORT", 9002))
 
-	if err := server.Start(); err != nil {
-		log.Fatalln("can't start API server", err)
-	}
+	server.MustStart()
 	defer server.Stop()
 
 	defaultMiddleware := []mux.MiddlewareFunc{
