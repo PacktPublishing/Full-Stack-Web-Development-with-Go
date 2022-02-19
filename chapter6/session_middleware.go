@@ -5,7 +5,6 @@ import (
 	"chapter6/store"
 	"context"
 	"database/sql"
-	"errors"
 	"net/http"
 )
 
@@ -44,7 +43,7 @@ func validCookieMiddleware(db *sql.DB) func(http.Handler) http.Handler {
 
 			querier := store.New(db)
 			user, err := querier.GetUser(req.Context(), int64(userID))
-			if errors.Is(err, sql.ErrNoRows) {
+			if err != nil || user.UserID < 1 {
 				api.JSONError(wr, http.StatusForbidden, "Bad Credentials")
 				return
 			}
