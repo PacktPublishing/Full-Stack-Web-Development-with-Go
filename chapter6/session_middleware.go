@@ -33,8 +33,15 @@ func validCookieMiddleware(db *sql.DB) func(http.Handler) http.Handler {
 				return
 			}
 
-			userID := session.Values["userID"].(int64)
-			isAuthd := session.Values["userAuthenticated"].(bool)
+			var userID int64
+			var isAuthd bool
+
+			if session.Values["userID"] != nil {
+				userID = session.Values["userID"].(int64)
+			}
+			if session.Values["userAuthenticated"] != nil {
+				isAuthd = session.Values["userAuthenticated"].(bool)
+			}
 
 			if !isAuthd || userID < 1 {
 				api.JSONError(wr, http.StatusForbidden, "Bad Credentials")
