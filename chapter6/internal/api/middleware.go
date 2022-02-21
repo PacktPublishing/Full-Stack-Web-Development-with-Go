@@ -8,7 +8,8 @@ import (
 	"github.com/gorilla/handlers"
 )
 
-// JSON middleware will ensure we only handle JSON
+// JSON middleware will help us only handle JSON
+// in and out
 func JSONMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
 		contentType := req.Header.Get("Content-Type")
@@ -26,6 +27,8 @@ func JSONMiddleware(next http.Handler) http.Handler {
 			JSONError(wr, http.StatusUnsupportedMediaType, "Content-Type not application/json")
 			return
 		}
+		// Tell the client we're talking JSON as well.
+		wr.Header().Add("Content-Type", "application/json")
 		next.ServeHTTP(wr, req)
 	})
 }
