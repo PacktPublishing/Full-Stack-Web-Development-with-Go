@@ -1,6 +1,7 @@
 package api
 
 import (
+	"chapter6/store"
 	"context"
 	"fmt"
 	"log"
@@ -12,22 +13,24 @@ import (
 )
 
 type Server struct {
-	port   string
-	server http.Server
-	router *mux.Router
-	wg     sync.WaitGroup
+	port    string
+	server  http.Server
+	Router  *mux.Router
+	wg      sync.WaitGroup
+	querier *store.Queries
 }
 
-func NewServer(port int) *Server {
+func NewServer(q *store.Queries, port int) *Server {
 	router := mux.NewRouter().StrictSlash(true)
 	return &Server{
-		router: router,
-		port:   fmt.Sprintf(":%d", port),
+		Router:  router,
+		querier: q,
+		port:    fmt.Sprintf(":%d", port),
 	}
 }
 
 func (c *Server) AddRoute(path string, handler http.HandlerFunc, method string, mwf ...mux.MiddlewareFunc) {
-	subRouter := c.router.PathPrefix(path).Subrouter()
+	subRouter := c.Router.PathPrefix(path).Subrouter()
 	subRouter.Use(mwf...)
 	subRouter.HandleFunc("", handler).Methods(method)
 	log.Printf("Added route: [%v] [%v]", path, method)
@@ -42,7 +45,7 @@ func (c *Server) MustStart() {
 	// Create the HTML Server
 	c.server = http.Server{
 		Addr:           fmt.Sprintf("0.0.0.0%s", c.port),
-		Handler:        c.router,
+		Handler:        c.Router,
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   0 * time.Second,
 		MaxHeaderBytes: http.DefaultMaxHeaderBytes,

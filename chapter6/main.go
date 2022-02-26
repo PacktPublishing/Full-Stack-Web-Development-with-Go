@@ -41,7 +41,8 @@ func main() {
 	createUserInDb(db)
 
 	// Start our server
-	server := api.NewServer(internal.GetAsInt("SERVER_PORT", 9002))
+	qq := store.New(db)
+	server := api.NewServer(qq, internal.GetAsInt("SERVER_PORT", 9002))
 
 	server.MustStart()
 	defer server.Stop()
@@ -57,7 +58,8 @@ func main() {
 	}
 
 	// Handlers
-	server.AddRoute("/login", handleLogin(db), http.MethodPost, defaultMiddleware...)
+	login := Login{}
+	server.AddRoute("/login", handleLogin(login, qq), http.MethodPost, defaultMiddleware...)
 	server.AddRoute("/logout", handleLogout(), http.MethodGet, defaultMiddleware...)
 
 	// Our session protected middleware

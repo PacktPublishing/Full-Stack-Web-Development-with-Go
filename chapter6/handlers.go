@@ -28,44 +28,52 @@ func init() {
 	}
 }
 
-func handleLogin(db *sql.DB) http.HandlerFunc {
+type LoginInterface interface {
+	GetUserByName(req *http.Request, wr http.ResponseWriter, q *store.Queries, payload LoginRequest)
+}
+
+type Login struct {
+}
+
+func (l Login) GetUserByName(req *http.Request, wr http.ResponseWriter, q *store.Queries, payload LoginRequest) {
+	user, err := q.GetUserByName(req.Context(), payload.Username)
+	if errors.Is(err, sql.ErrNoRows) || !internal.CheckPasswordHash(payload.Password,
+		user.PasswordHash) {
+		api.JSONError(wr, http.StatusForbidden, "Bad Credentials")
+		return
+	}
+	if err != nil {
+		log.Println("Received error looking up user", err)
+		api.JSONError(wr, http.StatusInternalServerError, "Couldn't log you in due to a server error")
+		return
+	}
+
+	session, err := cookieStore.Get(req, "session-name")
+	if err != nil {
+		log.Println("Cookie store failed with", err)
+		api.JSONError(wr, http.StatusInternalServerError, "Session Error")
+	}
+	session.Values["userAuthenticated"] = true
+	session.Values["userID"] = user.UserID
+	session.Save(req, wr)
+}
+
+type LoginRequest struct {
+	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
+}
+
+func handleLogin(li LoginInterface, querier *store.Queries) http.HandlerFunc {
 	return http.HandlerFunc(func(wr http.ResponseWriter, req *http.Request) {
 
-		// Thanks to our middleware, we know we have JSON
-		// we'll decode it into our request type and see if it's valid
-		type loginRequest struct {
-			Username string `json:"username,omitempty"`
-			Password string `json:"password,omitempty"`
-		}
-
-		payload := loginRequest{}
+		payload := LoginRequest{}
 		if err := json.NewDecoder(req.Body).Decode(&payload); err != nil {
 			log.Println("Error decoding the body", err)
 			api.JSONError(wr, http.StatusBadRequest, "Error decoding JSON")
 			return
 		}
 
-		querier := store.New(db)
-		user, err := querier.GetUserByName(req.Context(), payload.Username)
-		if errors.Is(err, sql.ErrNoRows) || !internal.CheckPasswordHash(payload.Password, user.PasswordHash) {
-			api.JSONError(wr, http.StatusForbidden, "Bad Credentials")
-			return
-		}
-		if err != nil {
-			log.Println("Received error looking up user", err)
-			api.JSONError(wr, http.StatusInternalServerError, "Couldn't log you in due to a server error")
-			return
-		}
-
-		// We're valid. Let's tell the user and set a cookie
-		session, err := cookieStore.Get(req, "session-name")
-		if err != nil {
-			log.Println("Cookie store failed with", err)
-			api.JSONError(wr, http.StatusInternalServerError, "Session Error")
-		}
-		session.Values["userAuthenticated"] = true
-		session.Values["userID"] = user.UserID
-		session.Save(req, wr)
+		li.GetUserByName(req, wr, querier, payload)
 	})
 }
 
