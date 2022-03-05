@@ -20,7 +20,7 @@ type UserSession struct {
 // with anything else.
 type ourCustomKey string
 
-const SessionKey ourCustomKey = "unique-session-key-for-our-example"
+const sessionKey ourCustomKey = "unique-session-key-for-our-example"
 
 // Our custom middleware to ensure
 // we have a valid user session
@@ -54,7 +54,7 @@ func validCookieMiddleware(db *sql.DB) func(http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(req.Context(), SessionKey, UserSession{
+			ctx := context.WithValue(req.Context(), sessionKey, UserSession{
 				UserID: user.UserID,
 			})
 			h.ServeHTTP(wr, req.WithContext(ctx))
@@ -63,7 +63,7 @@ func validCookieMiddleware(db *sql.DB) func(http.Handler) http.Handler {
 }
 
 func userFromSession(req *http.Request) (UserSession, bool) {
-	session, ok := req.Context().Value(SessionKey).(UserSession)
+	session, ok := req.Context().Value(sessionKey).(UserSession)
 	if session.UserID < 1 {
 		// Shouldnt happen
 		return UserSession{}, false
