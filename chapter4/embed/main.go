@@ -88,7 +88,7 @@ func main() {
 
 	router.HandleFunc("/login", postHandler).Methods("POST")
 
-	spa := staticHandler{staticPath: "static", indexPage: "index.html"}
+	spa := staticHandler{staticPath: "static", indexPage: "old_index.txt"}
 	router.PathPrefix("/").Handler(spa)
 
 	srv := &http.Server{
