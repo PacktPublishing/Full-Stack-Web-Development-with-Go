@@ -3,10 +3,10 @@
     <table>
       <tr>
         <td>
-          <router-link to="/">Home</router-link>
+          <router-link :to="{ name: 'Home'}">Home</router-link>
         </td>
         <td>
-          <router-link to="/login">Login</router-link>
+          <router-link :to="{ name: 'Login'}">Login</router-link>
         </td>
       </tr>
     </table>
