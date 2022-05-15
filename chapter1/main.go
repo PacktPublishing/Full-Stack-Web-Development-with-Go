@@ -7,7 +7,6 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"log"
-	"os"
 	"time"
 )
 
@@ -42,14 +41,14 @@ func main() {
 		Name:         "test",
 	})
 
-	if (err!=nil) {
-		os.Exit(1)
+	if err != nil {
+		log.Fatalln("Error creating user :", err)
 	}
 
 	eid, err := st.CreateExercise(ctx, "Exercise1")
 
-	if (err!=nil) {
-		os.Exit(1)
+	if err != nil {
+		log.Fatalln("Error creating exercise :", err)
 	}
 
 	sid, err := st.UpsertSet(ctx, chapter1.UpsertSetParams{
@@ -57,13 +56,21 @@ func main() {
 		Weight:     100,
 	})
 
-	if (err!=nil) {
-		os.Exit(1)
+	if err != nil {
+		log.Fatalln("Error updating exercise :", err)
 	}
-	
+
 	st.UpsertWorkout(ctx, chapter1.UpsertWorkoutParams{
 		UserID:    chuser.UserID,
 		SetID:     sid,
 		StartDate: time.Time{},
 	})
+
+	log.Println("Done!")
+
+	u, err := st.ListUsers(ctx)
+
+	for _, usr := range u {
+		fmt.Println(fmt.Sprintf("Name : %s, ID : %d", usr.Name, usr.UserID))
+	}
 }
