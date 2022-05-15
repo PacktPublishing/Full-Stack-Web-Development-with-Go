@@ -38,8 +38,9 @@ type GowebappUser struct {
 }
 
 type GowebappWorkout struct {
-	WorkoutID int64     `db:"workout_id" json:"workoutID"`
-	UserID    int64     `db:"user_id" json:"userID"`
-	SetID     int64     `db:"set_id" json:"setID"`
-	StartDate time.Time `db:"start_date" json:"startDate"`
+	WorkoutID  int64     `db:"workout_id" json:"workoutID"`
+	SetID      int64     `db:"set_id" json:"setID"`
+	UserID     int64     `db:"user_id" json:"userID"`
+	ExerciseID int64     `db:"exercise_id" json:"exerciseID"`
+	StartDate  time.Time `db:"start_date" json:"startDate"`
 }

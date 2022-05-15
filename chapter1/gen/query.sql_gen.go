@@ -101,7 +101,7 @@ const createWorkout = `-- name: CreateWorkout :one
 INSERT INTO gowebapp.workouts (User_ID, Set_ID, Start_Date)
 values ($1,
         $2,
-        $3) RETURNING workout_id, user_id, set_id, start_date
+        $3) RETURNING workout_id, set_id, user_id, exercise_id, start_date
 `
 
 type CreateWorkoutParams struct {
@@ -116,8 +116,9 @@ func (q *Queries) CreateWorkout(ctx context.Context, arg CreateWorkoutParams) (G
 	var i GowebappWorkout
 	err := row.Scan(
 		&i.WorkoutID,
-		&i.UserID,
 		&i.SetID,
+		&i.UserID,
+		&i.ExerciseID,
 		&i.StartDate,
 	)
 	return i, err
@@ -453,7 +454,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]GowebappUser, error) {
 }
 
 const listWorkouts = `-- name: ListWorkouts :many
-SELECT workout_id, user_id, set_id, start_date
+SELECT workout_id, set_id, user_id, exercise_id, start_date
 FROM gowebapp.workouts
 ORDER BY workout_id
 `
@@ -470,8 +471,9 @@ func (q *Queries) ListWorkouts(ctx context.Context) ([]GowebappWorkout, error) {
 		var i GowebappWorkout
 		if err := rows.Scan(
 			&i.WorkoutID,
-			&i.UserID,
 			&i.SetID,
+			&i.UserID,
+			&i.ExerciseID,
 			&i.StartDate,
 		); err != nil {
 			return nil, err
@@ -485,6 +487,26 @@ func (q *Queries) ListWorkouts(ctx context.Context) ([]GowebappWorkout, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateSet = `-- name: UpdateSet :one
+UPDATE gowebapp.sets
+SET (Exercise_Id, Weight) = ($1, $2)
+WHERE set_id = $3 RETURNING set_id, exercise_id, weight
+`
+
+type UpdateSetParams struct {
+	ExerciseID int64 `db:"exercise_id" json:"exerciseID"`
+	Weight     int32 `db:"weight" json:"weight"`
+	SetID      int64 `db:"set_id" json:"setID"`
+}
+
+// insert a sets id
+func (q *Queries) UpdateSet(ctx context.Context, arg UpdateSetParams) (GowebappSet, error) {
+	row := q.db.QueryRowContext(ctx, updateSet, arg.ExerciseID, arg.Weight, arg.SetID)
+	var i GowebappSet
+	err := row.Scan(&i.SetID, &i.ExerciseID, &i.Weight)
+	return i, err
 }
 
 const upsertExercise = `-- name: UpsertExercise :one
@@ -501,28 +523,6 @@ func (q *Queries) UpsertExercise(ctx context.Context, exerciseName string) (int6
 	var exercise_id int64
 	err := row.Scan(&exercise_id)
 	return exercise_id, err
-}
-
-const upsertSet = `-- name: UpsertSet :one
-INSERT INTO gowebapp.sets (Exercise_Id, Weight)
-values ($1,
-        $2) ON CONFLICT (Set_ID) DO
-UPDATE
-    SET Exercise_Id = EXCLUDED.Exercise_Id, Weight = EXCLUDED.Weight
-    RETURNING Set_ID
-`
-
-type UpsertSetParams struct {
-	ExerciseID int64 `db:"exercise_id" json:"exerciseID"`
-	Weight     int32 `db:"weight" json:"weight"`
-}
-
-// insert or update a particular sets id
-func (q *Queries) UpsertSet(ctx context.Context, arg UpsertSetParams) (int64, error) {
-	row := q.db.QueryRowContext(ctx, upsertSet, arg.ExerciseID, arg.Weight)
-	var set_id int64
-	err := row.Scan(&set_id)
-	return set_id, err
 }
 
 const upsertUserImage = `-- name: UpsertUserImage :one

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	_ "github.com/lib/pq"
 	"log"
-	"time"
 )
 
 func main() {
@@ -35,7 +34,7 @@ func main() {
 
 	ctx := context.Background()
 
-	chuser, err := st.CreateUsers(ctx, chapter1.CreateUsersParams{
+	_, err = st.CreateUsers(ctx, chapter1.CreateUsersParams{
 		UserName:     "testuser",
 		PassWordHash: "hash",
 		Name:         "test",
@@ -51,7 +50,7 @@ func main() {
 		log.Fatalln("Error creating exercise :", err)
 	}
 
-	sid, err := st.UpsertSet(ctx, chapter1.UpsertSetParams{
+	set, err := st.CreateSet(ctx, chapter1.CreateSetParams{
 		ExerciseID: eid,
 		Weight:     100,
 	})
@@ -60,11 +59,15 @@ func main() {
 		log.Fatalln("Error updating exercise :", err)
 	}
 
-	st.UpsertWorkout(ctx, chapter1.UpsertWorkoutParams{
-		UserID:    chuser.UserID,
-		SetID:     sid,
-		StartDate: time.Time{},
+	set, err = st.UpdateSet(ctx, chapter1.UpdateSetParams{
+		ExerciseID: eid,
+		SetID:      set.SetID,
+		Weight:     2000,
 	})
+
+	if err != nil {
+		log.Fatalln("Error updating set :", err)
+	}
 
 	log.Println("Done!")
 

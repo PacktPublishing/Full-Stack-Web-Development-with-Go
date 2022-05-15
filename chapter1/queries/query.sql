@@ -125,14 +125,11 @@ INSERT INTO gowebapp.sets (Exercise_Id, Weight)
 values ($1,
         $2) RETURNING *;
 
--- name: UpsertSet :one
--- insert or update a particular sets id
-INSERT INTO gowebapp.sets (Exercise_Id, Weight)
-values ($1,
-        $2) ON CONFLICT (Set_ID) DO
-UPDATE
-    SET Exercise_Id = EXCLUDED.Exercise_Id, Weight = EXCLUDED.Weight
-    RETURNING Set_ID;
+-- name: UpdateSet :one
+-- insert a sets id
+UPDATE gowebapp.sets
+SET (Exercise_Id, Weight) = ($1, $2)
+WHERE set_id = $3 RETURNING *;
 
 -- name: CreateWorkout :one
 -- insert new workouts
