@@ -10,6 +10,7 @@ import (
 func main() {
 	ol := log.Default()
 
+	// set log format to - dd/mm/yy hh:mm:ss
 	ol.SetFlags(log.LstdFlags)
 	ol.Println("Just a log text")
 	lognumber(ol)
@@ -33,6 +34,6 @@ func logjson(ol *log.Logger) {
 
 // lognumber to log number to logger
 func lognumber(ol *log.Logger) {
-	ol.SetFlags(log.Lshortfile)
+	ol.SetFlags(log.Lshortfile) // will display filename:linenumber format
 	ol.Printf("This is number %d", 1)
 }
