@@ -9,7 +9,6 @@ const count = ref(0);
 </script>
 
 <template>
-  <h1 class="text-3xl font-bold underline p-b">{{ msg }}</h1>
   <div class="flex space-2 justify-center">
     <button
       @click="count++"
