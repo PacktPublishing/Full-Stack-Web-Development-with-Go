@@ -5,5 +5,5 @@ import axios from 'axios';
 // api.post(), api.get() etc
 export default axios.create({
   baseURL: import.meta.env.VITE_BASE_API_URL,
-//   withCredentials: true,
+  withCredentials: true,
 });

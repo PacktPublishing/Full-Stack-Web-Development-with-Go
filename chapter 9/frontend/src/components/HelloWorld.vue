@@ -50,7 +50,7 @@ defineProps({
       Click to Post
     </button>
   </div>
-  <p>Your are in {{ deploymentMode }} mode</p>
+  <p>You are in {{ deploymentMode }} mode</p>
   <p>Your API is at {{ myBaseURL }}</p>
   <li v-for="(r, index) in result">
     {{ r }}

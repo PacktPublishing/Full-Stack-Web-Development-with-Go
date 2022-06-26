@@ -35,7 +35,6 @@ func main() {
 
 	// Apply the CORS middleware to our top-level router, with the defaults.
 	log.Printf("Listening on http://0.0.0.0%s/", port)
-	// http.ListenAndServe(port, handlers.CORS()(rtr))
 	http.ListenAndServe(port, rtr)
 }
 
