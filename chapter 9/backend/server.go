@@ -19,17 +19,12 @@ func main() {
 
 	rtr.Use(
 		handlers.CORS(
-			handlers.AllowedHeaders([]string{"X-Requested-With", "Authorization", "Access-Control-Allow-Methods", "Access-Control-Allow-Origin", "Origin", "Accept", "Content-Type", "business-id", "X-Device"}),
+			handlers.AllowedHeaders([]string{"X-Requested-With", "Origin", "Content-Type"}),
 			handlers.AllowedOrigins([]string{"http://0.0.0.0:3000", "http://localhost:3000"}),
 			handlers.AllowCredentials(),
 			handlers.AllowedMethods([]string{
 				http.MethodGet,
-				http.MethodHead,
 				http.MethodPost,
-				http.MethodPut,
-				http.MethodDelete,
-				http.MethodOptions,
-				http.MethodPatch,
 			})),
 	)
 
