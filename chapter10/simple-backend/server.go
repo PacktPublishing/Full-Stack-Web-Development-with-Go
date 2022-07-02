@@ -91,7 +91,6 @@ func appPOSTPrivate() http.HandlerFunc {
 
 		var rb RequestBody
 		if err := json.NewDecoder(req.Body).Decode(&rb); err != nil {
-			log.Println("apiAdminPatchUser: Decode failed:", err)
 			rw.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -116,7 +115,6 @@ func appPOSTLogin() http.HandlerFunc {
 
 		var rb RequestBody
 		if err := json.NewDecoder(req.Body).Decode(&rb); err != nil {
-			log.Println("apiAdminPatchUser: Decode failed:", err)
 			rw.WriteHeader(http.StatusBadRequest)
 			return
 		}
