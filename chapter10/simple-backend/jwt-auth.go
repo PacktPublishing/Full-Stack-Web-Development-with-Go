@@ -27,15 +27,15 @@ func init() {
 	jwtSessionLength = time.Duration(env.GetAsInt("JWT_SESSION_LENGTH", 5))
 }
 
-// JSON middleware will add in all the responses the specific header for json
-// payloads
+// JWTProtectedMiddleware verifies a valid JWT exists in our
+// cookie and if not, encourages the consumer to login again.
 func JWTProtectedMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		// Grab jwt-token cookie
 		jwtCookie, err := r.Cookie("jwt-token")
 		if err != nil {
-			log.Println("Error occured reading cookie", err)
+			log.Println("Error occurred reading cookie", err)
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(struct {
 				Message string `json:"message,omitempty"`
