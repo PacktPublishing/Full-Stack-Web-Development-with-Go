@@ -1,0 +1,13 @@
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "login",
+  "main": "index.js",
+  "private": false,
+  "scripts": {
+    "start": "http-server ./ -p 3000"
+  },
+  "dependencies": {
+    "http-server": "^0.11.1"
+  }
+}
