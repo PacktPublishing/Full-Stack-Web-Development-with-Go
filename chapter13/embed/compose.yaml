@@ -1,0 +1,11 @@
+version: '3'
+services:
+  server:
+    build: .
+    ports:
+      - "3333:3333"
+  cache:
+    image: redis:7.0.4-alpine
+    restart: always
+    ports:
+      - '6379:6379'
