@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/k0kubun/pp"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 )
@@ -16,7 +16,7 @@ func main() {
 	runServer(":8010")
 }
 
-//runServer to run the logging server
+// runServer to run the logging server
 func runServer(addr string) {
 	router = mux.NewRouter()
 	initializeRoutes()
@@ -30,7 +30,7 @@ func runServer(addr string) {
 	log.Fatal(http.ListenAndServe(addr, router))
 }
 
-//respondWithError handle error response
+// respondWithError handle error response
 func respondWithError(w http.ResponseWriter, code int, message string) {
 	response, _ := json.Marshal(message)
 
@@ -39,9 +39,9 @@ func respondWithError(w http.ResponseWriter, code int, message string) {
 	w.Write(response)
 }
 
-//loghandler to handle log POST request
+// loghandler to handle log POST request
 func loghandler(w http.ResponseWriter, r *http.Request) {
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 
 	if err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
@@ -54,7 +54,7 @@ func loghandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-//initializeRoutes to initialize different routes
+// initializeRoutes to initialize different routes
 func initializeRoutes() {
-	router.HandleFunc("/log", loghandler).Methods("POST")
+	router.HandleFunc("/log", loghandler).Methods(http.MethodPost)
 }
