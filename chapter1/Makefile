@@ -21,7 +21,7 @@ SQLC_YAML ?= ./sqlc.yaml
 .PHONY : postgresup postgresdown psql createdb teardown_recreate generate
 
 postgresup:
-	docker run --name test-postgres -e POSTGRES_PASSWORD=mysecretpassword -p 5432:5432 -d postgres
+	docker run --name test-postgres -e POSTGRES_PASSWORD=$(DB_PWD) -p 5432:5432 -d $(DB_NAME)
 
 postgresdown:
 	docker stop test-postgres  || true && 	docker rm test-postgres || true

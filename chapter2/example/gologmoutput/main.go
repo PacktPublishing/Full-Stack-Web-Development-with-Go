@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+const logFile = "infolog.txt"
+
 func init() {
 	golog.SetLevel("debug")
 	configureLogger()
@@ -22,7 +24,7 @@ func main() {
 
 func configureLogger() {
 	// open infolog.txt  append if exist (os.O_APPEND) or create if not (os.O_CREATE) and read write (os.O_WRONLY)
-	infof, err := os.OpenFile("infolog.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	infof, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		log.Fatal(err)
 	}
