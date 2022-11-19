@@ -7,7 +7,7 @@ import (
 
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
-	trace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/sdk/trace"
 	sc "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
