@@ -11,7 +11,7 @@ DB_USER ?= postgres
 DB_PWD ?= mysecretpassword
 
 # psql URL
-IP=`docker inspect --format '{{ .NetworkSettings.IPAddress }}' test-postgres`
+IP=127.0.0.1
 
 PSQLURL ?= $(DB_TYPE)://$(DB_USER):$(DB_PWD)@$(IP):5432/$(DB_NAME)
 
@@ -21,17 +21,17 @@ SQLC_YAML ?= ./sqlc.yaml
 .PHONY : postgresup postgresdown psql createdb teardown_recreate generate
 
 postgresup:
-	docker run --name test-postgres -e POSTGRES_PASSWORD=$(DB_PWD) -p 5432:5432 -d $(DB_NAME)
+	docker run --name test-postgres -v $(PWD):/usr/share/chapter1 -e POSTGRES_PASSWORD=$(DB_PWD) -p 5432:5432 -d $(DB_NAME)
 
 postgresdown:
 	docker stop test-postgres  || true && 	docker rm test-postgres || true
 
 psql:
-	docker run -v $(PWD):/usr/share/chapter1 -it --rm jbergknoff/postgresql-client -p 5432:5432 $(PSQLURL)
+	docker exec -it test-postgres psql $(PSQLURL)
 
 # task to create database without typing it manually
 createdb:
-	docker run -v $(PWD):/usr/share/chapter1 -it --rm jbergknoff/postgresql-client -p 5432:5432 $(PSQLURL) -c "\i /usr/share/chapter1/db/schema.sql"
+	docker exec -it test-postgres psql $(PSQLURL) -c "\i /usr/share/chapter1/db/schema.sql"
 
 teardown_recreate: postgresdown postgresup
 	sleep 5
