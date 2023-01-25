@@ -54,9 +54,9 @@ We also provide a PDF file that has color images of the screenshots/diagrams use
 
 
 ### Related products <Other books you may enjoy>
-* Interactive Visualization and Plotting with Julia [[Packt]](https://www.packtpub.com/product/interactive-visualization-and-plotting-with-julia/9781801810517) [[Amazon]](https://www.amazon.com/dp/1801810516)
+* Network Automation with Go [[Packt]](https://www.packtpub.com/product/network-automation-with-go/9781800560925) [[Amazon]](https://www.amazon.com/dp/1800560923)
 
-* Rust Web Programming [[Packt]](https://www.packtpub.com/product/rust-web-programming/9781800560819) [[Amazon]](https://www.amazon.com/dp/1800560818)
+* Microservices with Go [[Packt]](https://www.packtpub.com/product/rust-web-programming/9781800560819) [[Amazon]](https://www.amazon.com/dp/1804617008)
 
 ## Get to Know the Authors
 **Nanik Tolaram**
