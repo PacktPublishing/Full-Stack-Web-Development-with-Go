@@ -67,3 +67,8 @@ He would like to thank his wife Jessie and sons - Rahul and Manav for being supp
 s a Sydney based tech and product-focused entrepreneur and CTO with long experience building software projects used by thousands of people daily.
 Formerly Nick was a technical consultant and trainer on Android, Embedded Linux, Security, C and C++ but now works to help teams create and ship meaningful products after successfully exiting his previous company, QuickaPay, which his current employer acquired.
 Nick would like to thank Kate, his supportive friends, and family, and his incredible daughter Inara.
+
+### Download a free PDF
+
+ <i>If you have already purchased a print or Kindle version of this book, you can get a DRM-free PDF version at no cost.<br>Simply click on the link to claim your free PDF.</i>
+<p align="center"> <a href="https://packt.link/free-ebook/9781803234199">https://packt.link/free-ebook/9781803234199 </a> </p>
