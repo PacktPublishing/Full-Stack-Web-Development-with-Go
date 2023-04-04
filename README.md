@@ -64,7 +64,7 @@ is based in Sydney and is a big fan of open source technologies and projects. He
 He would like to thank his wife Jessie and sons - Rahul and Manav for being supportive in allowing him to spend weekends and countless hours sharing his passion for writing this book.
 
 **Nick Glynn**
-s a Sydney based tech and product-focused entrepreneur and CTO with long experience building software projects used by thousands of people daily.
+is a Sydney based tech and product-focused entrepreneur and CTO with long experience building software projects used by thousands of people daily.
 Formerly Nick was a technical consultant and trainer on Android, Embedded Linux, Security, C and C++ but now works to help teams create and ship meaningful products after successfully exiting his previous company, QuickaPay, which his current employer acquired.
 Nick would like to thank Kate, his supportive friends, and family, and his incredible daughter Inara.
 
